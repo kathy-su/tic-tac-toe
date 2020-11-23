@@ -123,3 +123,138 @@ bool checkGameTie(string board[4][4], string symbol, int counter, bool winner_de
     }
     return false;
 }
+//updates the board as the game progresses
+void updateBoard(bool& continue_game, int& player_counter, int& score_x, int& score_o, int& counter, int& number_of_ties) {
+    //variable declaration and initialization
+    string board[4][4] = { {"1", "2", "3", "4"},
+                          {"5", "6", "7", "8"},
+                          {"9", "10", "11", "12"},
+                          {"13", "14", "15", "16"} };
+    int desired_location;
+    int row, col;
+    string location_on_board;
+    string symbol;
+    bool valid_location = false;
+    bool winner_determined = false, invalid_input = true, tie = false;
+    char play_again = 'n';
+
+    for (int i = 0; i < 16 && !winner_determined; i++) {
+        //outputs updated board
+        printBoard(board);
+        //determines if the desired location is valid
+        while (!valid_location) {
+            cout << "Enter the number of the desired location (1-16): ";
+            cin >> desired_location;
+            if (desired_location >= 1 && desired_location <= 16 && checkLocation(board, desired_location, row, col)) {
+                valid_location = true;
+            }
+            else {
+                cout << "Wrong input. ";
+            }
+        }
+
+        //if player counter is even, the first player will be player X, if not the first player will be player O
+        //if the counter is even, the player to put down a symbol is the first player, if not the player to put down a symbol is the second player
+        //updates board depending on the scenario
+        if (player_counter % 2 == 0 && counter % 2 == 0) {
+            board[row][col] = "X";
+            symbol = "X";
+        }
+        else if (player_counter % 2 == 0 && counter % 2 == 1) {
+            board[row][col] = "O";
+            symbol = "O";
+        }
+        else if (player_counter % 2 == 1 && counter % 2 == 0) {
+            board[row][col] = "O";
+            symbol = "O";
+        }
+        else {
+            board[row][col] = "X";
+            symbol = "X";
+        }
+        //determines if there is a winner
+        winner_determined = checkGameWon(board, symbol, score_x, score_o);
+
+        //determines if there is a tie
+        tie = checkGameTie(board, symbol, counter, winner_determined, number_of_ties);
+
+        //options given after there is a winner
+        if (winner_determined) {
+            while (invalid_input) {
+                cout << "Would you like to play again? (Y/N)" << endl;
+                cin >> play_again;
+                //if the players want to play again
+                //restarts the game            
+                if (play_again == 'Y' || play_again == 'y') {
+                    continue_game = true;
+                    invalid_input = false;
+                }
+                //if the players don't want to play again
+                //prints the scores and the number of ties and then exits the program         
+                else if (play_again == 'N' || play_again == 'n') {
+                    continue_game = false;
+                    invalid_input = false;
+                    cout << "Number of Victories for Player X: " << score_x << endl;
+                    cout << "Number of Victories for Player O: " << score_o << endl;
+                    cout << "Number of Ties: " << number_of_ties << endl;
+                    cout << "Game has ended. Thank you for playing! :)" << endl;
+                    exit(0);
+                }
+            }
+        }
+        //options given if the game is tied
+        if (tie) {
+            printBoard(board);
+            while (invalid_input) {
+                cout << "This is tied! Play again? (Y/N)" << endl;
+                cin >> play_again;
+                //if the players want to play again
+                //restarts the game            
+                if (play_again == 'Y' || play_again == 'y') {
+                    continue_game = true;
+                    invalid_input = false;
+                }
+                //if the players don't want to play again
+                //prints the scores and the number of ties and then exits the program   
+                else if (play_again == 'N' || play_again == 'n') {
+                    continue_game = false;
+                    invalid_input = false;
+
+                    cout << "Number of Victories for Player X: " << score_x << endl;
+                    cout << "Number of Victories for Player O: " << score_o << endl;
+                    cout << "Number of Ties: " << number_of_ties << endl;
+                    cout << "Game has ended. Thank you for playing! :)" << endl;
+                    exit(0);
+                }
+            }
+        }
+        //updates variables
+        counter++;
+        valid_location = false;
+        invalid_input = true;
+    } //end for loop
+
+    //reset variables
+    player_counter++;
+    counter = 0;
+}
+
+//starts the game
+void startGame() {
+    //variable declaration and initialization
+    bool continue_game = true;
+    int score_x = 0, score_o = 0;
+    int counter = 0, player_counter = 0;
+    int number_of_ties = 0;
+
+    //continues to play the game unless the user wants to end game
+    while (continue_game) {
+        updateBoard(continue_game, player_counter, score_x, score_o, counter, number_of_ties);
+    }
+}
+
+int main()
+{
+    //calls function
+    startGame();
+}
